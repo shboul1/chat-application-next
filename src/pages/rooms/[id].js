@@ -11,11 +11,13 @@ export default function Room() {
   const [newMessage, setNewMessage] = useState("");
   useEffect(() => {
     (async () => {
-      const res = await fetch("/api/messages");
-      const { messages } = await res.json();
-      setMessages(messages);
+      if (id) {
+        const res = await fetch(`/api/messages/${id}`);
+        const { messages } = await res.json();
+        setMessages(messages);
+      }
     })();
-  }, []);
+  }, [id]);
 
   useEffect(() => {
     if (id) {

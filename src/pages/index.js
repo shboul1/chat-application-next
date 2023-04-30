@@ -5,14 +5,18 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   const router = useRouter();
-  function handleEnterRoom() {
-    const roomId = Math.floor(Math.random() * 1000000);
+
+  async function handleEnterRoom() {
+    const resp = await fetch("/api/rooms", {
+      method: "POST",
+    });
+    const { roomId } = await resp.json();
     router.push(`/rooms/${roomId}`);
   }
   return (
     <main className={`${styles.main} ${inter.className}`}>
       <h1 className={styles.title} onClick={handleEnterRoom}>
-        Enter Room!
+        Enter Room! ➡️
       </h1>
     </main>
   );
