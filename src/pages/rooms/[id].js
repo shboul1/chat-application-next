@@ -66,6 +66,8 @@ export default function Room() {
         <textarea></textarea> <br />
         <button type="submit">Send</button>
       </form>
+      <br />
+      <button onClick={() => router.push("/")}>Back to Home</button>
     </div>
   );
 }
