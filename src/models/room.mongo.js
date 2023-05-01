@@ -4,6 +4,10 @@ const roomSchema = new mongoose.Schema({
   data: {
     type: Object,
     required: true,
+    messages: {
+      type: Array,
+      default: [],
+    },
   },
 });
 
