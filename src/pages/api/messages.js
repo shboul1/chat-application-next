@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   switch (req.method) {
     case "POST":
       const { roomId, message } = JSON.parse(req.body);
-      pusherServer.trigger(roomId, "incoming-message", message);
+      await pusherServer.trigger(roomId, "incoming-message", message);
       await Room.findByIdAndUpdate(
         roomId,
         { $push: { "data.messages": message } },
