@@ -2,23 +2,25 @@ import { useRouter } from "next/router";
 import { useState, useEffect, useRef } from "react";
 import { pusherClient } from "@/lib/pusher";
 import React from "react";
+import { getBaseURL } from "@/utils";
 
-export default function Room() {
+export async function getServerSideProps({ params }) {
+  const { id } = params;
+  const res = await fetch(`${getBaseURL()}/api/messages/${id}`);
+  const { messages } = await res.json();
+  return {
+    props: {
+      Oldmessages: messages ?? [],
+    },
+  };
+}
+
+export default function Room({ Oldmessages }) {
   const router = useRouter();
   const { id } = router.query;
   const messageHandlerRef = useRef(null);
 
-  const [messages, setMessages] = useState([]);
-  useEffect(() => {
-    (async () => {
-      if (id) {
-        const res = await fetch(`/api/rooms/${id}`);
-        const { room } = await res.json();
-        if (room[0]?.data?.messages) setMessages(room[0]?.data?.messages);
-      }
-    })();
-  }, [id]);
-
+  const [messages, setMessages] = useState(Oldmessages ?? []);
   useEffect(() => {
     if (id) {
       pusherClient.subscribe(id);
@@ -29,6 +31,7 @@ export default function Room() {
     }
 
     messageHandlerRef.current = (message) => {
+      console.log({ message });
       setMessages((prev) => [...prev, message]);
     };
 
@@ -51,12 +54,25 @@ export default function Room() {
     });
   }
 
+  async function handleDeleteMessage(messageId) {
+    await fetch("/api/message", {
+      method: "DELETE",
+      body: JSON.stringify({
+        roomId: id,
+        messageId,
+      }),
+    });
+  }
+
   return (
     <div className="roomContainer">
       <h1>Room {id}</h1>
       <ul>
-        {messages.map((message) => (
-          <li key={message + 1}>{message}</li>
+        {messages?.map((message) => (
+          <li key={message?.id}>
+            {message.message} ---
+            <button onClick={() => handleDeleteMessage(message?.id)}>❌</button>
+          </li>
         ))}
       </ul>
       <br />
