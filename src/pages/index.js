@@ -1,21 +1,23 @@
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import { getBaseURL } from "@/utils";
+import RoomCard from "@/components/RoomCard";
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Home() {
-  const [rooms, setRooms] = useState([]);
+export async function getServerSideProps() {
+  const res = await fetch(`${getBaseURL()}/api/rooms`);
+  const rooms = await res.json();
+  return {
+    props: {
+      rooms: rooms ?? [],
+    },
+  };
+}
+
+export default function Home({ rooms }) {
   const router = useRouter();
-  useEffect(() => {
-    (async () => {
-      const res = await fetch("/api/rooms");
-      const rooms = await res.json();
-      if (rooms) {
-        setRooms(rooms.room);
-      }
-    })();
-  }, []);
+
   async function handleEnterRoom() {
     const resp = await fetch("/api/rooms", {
       method: "POST",
@@ -25,14 +27,14 @@ export default function Home() {
   }
   return (
     <main className={`${styles.main} ${inter.className}`}>
-      <h1 className={styles.title} onClick={handleEnterRoom}>
-        Enter Room! ➡️
-      </h1>
-      {rooms?.map((room) => (
-        <div key={room?._id}>
-          <h2 onClick={() => router.push(`/rooms/${room?._id}`)}>{room._id}</h2>
-        </div>
-      ))}
+      <div className={styles.roomsContainer}>
+        {rooms.room?.map((room, index) => (
+          <RoomCard key={room?._id} room={room} index={index} />
+        ))}
+      </div>
+      <button className={styles.createRoomBtn} onClick={handleEnterRoom}>
+        Create New Room
+      </button>
     </main>
   );
 }
