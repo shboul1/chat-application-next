@@ -1,0 +1,60 @@
+.roomContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6rem;
+  min-height: 100vh;
+}
+.messagesContainer {
+  display: flex;
+  flex-direction: column;
+}
+.messageCard {
+  display: flex;
+  align-items: center;
+  column-gap: 0.5rem;
+  flex-direction: column;
+}
+
+.messageContent {
+background: rgba(255, 255, 255, 0.02);
+border-radius: 16px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(1.2px);
+-webkit-backdrop-filter: blur(1.2px);
+border: 1px solid rgba(255, 255, 255, 0.24);
+padding: 1rem;
+min-width: 300px;
+font-size: 1.2rem;
+}
+
+.dots {
+  cursor: pointer;
+  position: relative;
+}
+.dialoag {
+  position: absolute;
+    top: -59px;
+    right: -106px;
+    border-radius: 8px;
+    padding: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    height: 60px;
+    width: 115px;
+    background: #242526;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 17px;
+}
+
+
+@media only screen and (min-width: 768px) {
+  .messageCard {
+    flex-direction: row;
+  }
+
+}

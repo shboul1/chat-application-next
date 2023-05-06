@@ -1,8 +1,13 @@
+import React from "react";
+import { Inter } from "next/font/google";
 import { useRouter } from "next/router";
 import { useState, useEffect, useRef } from "react";
 import { pusherClient } from "@/lib/pusher";
-import React from "react";
 import { getBaseURL } from "@/utils";
+import styles from "@/styles/Room.module.css";
+const inter = Inter({ subsets: ["latin"] });
+
+import MessageCard from "@/components/MessageCard";
 
 export async function getServerSideProps({ params }) {
   const { id } = params;
@@ -10,17 +15,19 @@ export async function getServerSideProps({ params }) {
   const { messages } = await res.json();
   return {
     props: {
-      Oldmessages: messages ?? [],
+      existingMessages: messages ?? [],
     },
   };
 }
 
-export default function Room({ Oldmessages }) {
+export default function Room({ existingMessages }) {
   const router = useRouter();
   const { id } = router.query;
   const messageHandlerRef = useRef(null);
 
-  const [messages, setMessages] = useState(Oldmessages ?? []);
+  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState(existingMessages ?? []);
+
   useEffect(() => {
     if (id) {
       pusherClient.subscribe(id);
@@ -31,7 +38,6 @@ export default function Room({ Oldmessages }) {
     }
 
     messageHandlerRef.current = (message) => {
-      console.log({ message });
       setMessages((prev) => [...prev, message]);
     };
 
@@ -55,34 +61,39 @@ export default function Room({ Oldmessages }) {
   }
 
   async function handleDeleteMessage(messageId) {
-    await fetch("/api/message", {
-      method: "DELETE",
-      body: JSON.stringify({
-        roomId: id,
-        messageId,
-      }),
-    });
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/messages/${messageId}`, {
+        method: "DELETE",
+      });
+      if (res) {
+        setLoading(false);
+        setMessages((prev) => prev.filter((m) => m.id !== messageId));
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log({ error });
+    }
   }
 
   return (
-    <div className="roomContainer">
+    <div className={`${styles.roomContainer} ${inter.className}`}>
       <h1>Room {id}</h1>
-      <ul>
+      <div className={styles.messagesContainer}>
         {messages?.map((message) => (
-          <li key={message?.id}>
-            {message.message} ---
-            <button onClick={() => handleDeleteMessage(message?.id)}>❌</button>
-          </li>
+          <MessageCard
+            key={message?.id}
+            message={message}
+            handleDelete={handleDeleteMessage}
+            loading={loading}
+          />
         ))}
-      </ul>
-      <br />
-      <br />
-      <br />
+      </div>
+
       <form onSubmit={handleSendMessage}>
         <textarea></textarea> <br />
         <button type="submit">Send</button>
       </form>
-      <br />
       <button onClick={() => router.push("/")}>Back to Home</button>
     </div>
   );

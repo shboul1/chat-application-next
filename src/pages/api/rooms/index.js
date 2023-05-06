@@ -8,9 +8,7 @@ export default async function handler(req, res) {
       const room = await Room.find({}, { __v: 0 });
       return res.status(200).json({ room });
     case "POST":
-      const createdRoom = await Room.create({
-        messages: [],
-      });
+      const createdRoom = await Room.create({});
       return res.status(200).json({ roomId: createdRoom.id });
     default:
       return res.status(400);
